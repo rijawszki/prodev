@@ -8,14 +8,14 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:typed_data';
 
-class RegistrationUser extends StatefulWidget {
-  const RegistrationUser({super.key});
+class CompanyRegistration extends StatefulWidget {
+  const CompanyRegistration({super.key});
 
   @override
   _RegisterScreenState createState() => _RegisterScreenState();
 }
 
-class _RegisterScreenState extends State<RegistrationUser> {
+class _RegisterScreenState extends State<CompanyRegistration> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
@@ -116,14 +116,13 @@ class _RegisterScreenState extends State<RegistrationUser> {
 
       User? user = userCredential.user;
       if (user != null) {
-        await _firestore.collection('users').doc(user.uid).set({
+        await _firestore.collection('company').doc(user.uid).set({
           'name': _nameController.text.trim(),
           'email': _emailController.text.trim(),
           'age': int.parse(_ageController.text.trim()),
           'uid': user.uid,
           'profileImageUrl': imageUrl ?? '',
-          'role':'user',
-        
+          'role':'Company',
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -144,7 +143,7 @@ class _RegisterScreenState extends State<RegistrationUser> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 51, 143, 115),
       appBar: AppBar(
-        title: Text('User Registration', style: TextStyle(color: Colors.white)),
+        title: Text('company Registration', style: TextStyle(color: Colors.white)),
         backgroundColor: const Color.fromARGB(255, 51, 143, 115),
       ),
       body: Padding(
@@ -177,7 +176,7 @@ class _RegisterScreenState extends State<RegistrationUser> {
                   TextFormField(
                     controller: _nameController,
                     decoration: InputDecoration(labelText: 'Name'),
-                    validator: (value) => value!.isEmpty ? 'Enter your name' : null,
+                    validator: (value) => value!.isEmpty ? 'Enter company name' : null,
                   ),
                   SizedBox(height: 10),
 
@@ -186,7 +185,7 @@ class _RegisterScreenState extends State<RegistrationUser> {
                     controller: _emailController,
                     decoration: InputDecoration(labelText: 'Email', hoverColor: Colors.white),
                     keyboardType: TextInputType.emailAddress,
-                    validator: (value) => !value!.contains('@') ? 'Enter a valid email' : null,
+                    validator: (value) => !value!.contains('@') ? 'Enter company email' : null,
                   ),
                   SizedBox(height: 10),
 
@@ -195,7 +194,7 @@ class _RegisterScreenState extends State<RegistrationUser> {
                     controller: _ageController,
                     decoration: InputDecoration(labelText: 'Age'),
                     keyboardType: TextInputType.number,
-                    validator: (value) => int.tryParse(value!) == null ? 'Enter a valid age' : null,
+                    validator: (value) => int.tryParse(value!) == null ? 'phone' : null,
                     style: TextStyle(color: Colors.white),
                   ),
                   SizedBox(height: 10),
