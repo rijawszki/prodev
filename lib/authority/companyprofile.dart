@@ -3,55 +3,53 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class UserProfile extends StatefulWidget {
-  const UserProfile({super.key});
+class CompanyProfile extends StatefulWidget {
+  const CompanyProfile({super.key});
 
   @override
-  _UserProfileState createState() => _UserProfileState();
+  _CompanyProfileState createState() => _CompanyProfileState();
 }
 
-class _UserProfileState extends State<UserProfile> {
+class _CompanyProfileState extends State<CompanyProfile> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  String _name = "User Name";
-  String _email = "user@example.com";
-  String _bio = "Flutter Developer | Tech Enthusiast";
-  String _profileImageUrl = "";
-  int _age = 0;
+  String _companyName = "Company Name";
+  String _email = "company@example.com";
+  String _industry = "Industry Type";
+  String _logoUrl = "";
   bool _animate = true;
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _fetchUserData();
+    _fetchCompanyData();
   }
 
-  /// **Fetch User Data from Firestore**
-  Future<void> _fetchUserData() async {
+  /// **Fetch Company Data from Firestore**
+  Future<void> _fetchCompanyData() async {
     User? user = _auth.currentUser;
 
     if (user != null) {
       try {
-        DocumentSnapshot userDoc =
-            await _firestore.collection('users').doc(user.uid).get();
+        DocumentSnapshot companyDoc =
+            await _firestore.collection('company').doc(user.uid).get();
 
-        if (userDoc.exists && userDoc.data() != null) {
+        if (companyDoc.exists && companyDoc.data() != null) {
           Map<String, dynamic> data =
-              userDoc.data() as Map<String, dynamic>;
+              companyDoc.data() as Map<String, dynamic>;
 
           setState(() {
-            _name = data['name'] ?? "Unknown User";
+            _companyName = data['name'] ?? "Unknown Company";
             _email = data['email'] ?? "No Email";
-            _bio = data['bio'] ?? "No bio available";
-            _profileImageUrl = data['profileImageUrl'] ?? "";
-            _age = data['age'] ?? 0;
+            _industry = data['industry'] ?? "No industry specified";
+            _logoUrl = data['logoUrl'] ?? "";
             _isLoading = false;
           });
         }
       } catch (e) {
-        print("Error fetching user data: $e");
+        print("Error fetching company data: $e");
         setState(() {
           _isLoading = false;
         });
@@ -90,20 +88,20 @@ class _UserProfileState extends State<UserProfile> {
                       child: CircleAvatar(
                         backgroundColor: Colors.grey[300],
                         radius: 60,
-                        backgroundImage: _profileImageUrl.isNotEmpty
-                            ? NetworkImage(_profileImageUrl)
+                        backgroundImage: _logoUrl.isNotEmpty
+                            ? NetworkImage(_logoUrl)
                             : null,
-                        child: _profileImageUrl.isEmpty
-                            ? const Icon(Icons.person, size: 60, color: Colors.white)
+                        child: _logoUrl.isEmpty
+                            ? const Icon(Icons.business, size: 60, color: Colors.white)
                             : null,
                       ),
                     ),
 
                     const SizedBox(height: 20),
 
-                    // **User Name**
+                    // **Company Name**
                     Text(
-                      _name,
+                      _companyName,
                       style: const TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
@@ -111,11 +109,11 @@ class _UserProfileState extends State<UserProfile> {
                       ),
                     ),
 
-                    // **User Bio**
+                    // **Industry Type**
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: Text(
-                        _bio,
+                        _industry,
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                           fontSize: 16,
@@ -130,15 +128,6 @@ class _UserProfileState extends State<UserProfile> {
                     // **Email**
                     Text(
                       _email,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.white60,
-                      ),
-                    ),
-
-                    // **Age**
-                    Text(
-                      "Age: $_age",
                       style: const TextStyle(
                         fontSize: 16,
                         color: Colors.white60,

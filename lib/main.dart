@@ -134,6 +134,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:prodev/authority/companyHomepage.dart';
 import 'package:prodev/authority/company_registration.dart';
+import 'package:prodev/authority/companyprofile.dart';
+import 'package:prodev/logoscreen.dart';
 import 'package:prodev/splashscreen.dart';
 import 'package:prodev/user/registration_user.dart';
 import 'package:prodev/login.dart';
@@ -159,16 +161,20 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      initialRoute: '/splashscreen',
+      home: Logoscreen(),
       routes: {
         '/splashscreen':(context)=> SplashScreen(),
         '/register': (context) => SplashScreen(),
         '/login': (context) => LoginScreen(),
         '/userHomepage': (context) => UserHomepage(),
         '/CompanyRegistration': (context) => CompanyRegistration(),
-        '/companyhomepage':(context)=> Companyhomepage(),
+        '/companyhomepage':(context)=> CompanyHomepage(),
         '/RegistrationUser': (context) => RegistrationUser(),
         '/UserProfile':(context)=> UserProfile(),
+        '/CompanyProfile':(context)=> CompanyProfile(),
+        '/Logoscreen':( context)=>Logoscreen(),
+        
+
         
 
       },

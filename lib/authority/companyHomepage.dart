@@ -1,34 +1,38 @@
+import 'package:flashy_tab_bar2/flashy_tab_bar2.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class Companyhomepage extends StatefulWidget {
+class CompanyHomepage extends StatefulWidget {
+  const CompanyHomepage({super.key});
+
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  _CompanyHomepageState createState() => _CompanyHomepageState();
 }
 
-class _HomeScreenState extends State<Companyhomepage> {
-  String? userEmail;
-  String? userPhone;
-  bool _isLoading = true;
+class _CompanyHomepageState extends State<CompanyHomepage> {
+  int _selectedIndex = 0;
+  String? companyName;
+  String? companyEmail;
+  String? companyPhone;
+  String? profileImageUrl;
 
   @override
   void initState() {
     super.initState();
-    _fetchUserData();
+    _fetchCompanyData();
   }
 
-  Future<void> _fetchUserData() async {
+  Future<void> _fetchCompanyData() async {
     User? user = FirebaseAuth.instance.currentUser;
-
     if (user != null) {
-      DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
-
-      if (userDoc.exists) {
+      DocumentSnapshot companyDoc = await FirebaseFirestore.instance.collection('companies').doc(user.uid).get();
+      if (companyDoc.exists) {
         setState(() {
-          userEmail = userDoc['email'];
-          userPhone = userDoc['phone'];
-          _isLoading = false;
+          companyName = companyDoc['name'] ?? 'Company';
+          companyEmail = companyDoc['email'];
+          companyPhone = companyDoc['phone'] ?? 'N/A';
+          profileImageUrl = companyDoc['profileImageUrl'] ?? "";
         });
       }
     }
@@ -36,55 +40,48 @@ class _HomeScreenState extends State<Companyhomepage> {
 
   Future<void> _logout() async {
     await FirebaseAuth.instance.signOut();
-    Navigator.pushReplacementNamed(context, '/login'); // Navigate back to login screen
+    Navigator.pushReplacementNamed(context, '/login');
   }
+
+  void _goToProfile() {
+    Navigator.pushNamed(context, '/CompanyProfile');
+  }
+
+  List<Widget> _tabItems() => [
+        Center(child: Text("Dashboard", style: TextStyle(color: Colors.white))),
+        Center(child: Text("Job Listings", style: TextStyle(color: Colors.white))),
+        Center(child: Text("Candidates", style: TextStyle(color: Colors.white))),
+        Center(child: Text("Notifications", style: TextStyle(color: Colors.white))),
+      ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       appBar: AppBar(
-        title: Text("companyHome"),
+        title: Text("Welcome, ${companyName ?? 'Company'}", style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.deepPurple,
         actions: [
-          IconButton(
-            icon: Icon(Icons.logout),
-            onPressed: _logout,
-          ),
+          IconButton(icon: Icon(Icons.account_circle, color: Colors.white), onPressed: _goToProfile),
+          IconButton(icon: Icon(Icons.logout, color: Colors.white), onPressed: _logout),
         ],
       ),
-      body: _isLoading
-          ? Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("Welcome!", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                  SizedBox(height: 10),
-                  Card(
-                    elevation: 3,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    child: Padding(
-                      padding: EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("📧 Email: $userEmail", style: TextStyle(fontSize: 18)),
-                          SizedBox(height: 10),
-                          Text("📞 Phone: $userPhone", style: TextStyle(fontSize: 18)),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  Center(
-                    child: ElevatedButton(
-                      onPressed: _logout,
-                      child: Text("Logout"),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+      body: _tabItems()[_selectedIndex],
+      bottomNavigationBar: FlashyTabBar(
+        animationCurve: Curves.linear,
+        selectedIndex: _selectedIndex,
+        iconSize: 30,
+        showElevation: false,
+        onItemSelected: (index) => setState(() {
+          _selectedIndex = index;
+        }),
+        items: [
+          FlashyTabBarItem(icon: Icon(Icons.dashboard), title: Text('Dashboard')),
+          FlashyTabBarItem(icon: Icon(Icons.work), title: Text('Jobs')),
+          FlashyTabBarItem(icon: Icon(Icons.people), title: Text('Candidates')),
+          FlashyTabBarItem(icon: Icon(Icons.notifications), title: Text('Notifications')),
+        ],
+      ),
     );
   }
 }
