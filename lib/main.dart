@@ -137,6 +137,9 @@ import 'package:prodev/authority/company_registration.dart';
 import 'package:prodev/authority/companyprofile.dart';
 import 'package:prodev/logoscreen.dart';
 import 'package:prodev/splashscreen.dart';
+import 'package:prodev/user/games.dart';
+import 'package:prodev/user/ielts.dart';
+import 'package:prodev/user/jobs.dart';
 import 'package:prodev/user/registration_user.dart';
 import 'package:prodev/login.dart';
 import 'package:prodev/user/user_homepage.dart'; // Ensure this exists
@@ -173,6 +176,9 @@ class MyApp extends StatelessWidget {
         '/UserProfile':(context)=> UserProfile(),
         '/CompanyProfile':(context)=> CompanyProfile(),
         '/Logoscreen':( context)=>Logoscreen(),
+         '/IeltsPage': (context) => IeltsPage(),
+        '/JobsPages': (context) => JobsPage(),
+        '/GamesPage': (context) => GamesPage(),
         
 
         

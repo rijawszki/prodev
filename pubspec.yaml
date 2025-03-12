@@ -44,6 +44,7 @@ dependencies:
   flashy_tab_bar2: ^0.0.10
   avatar_glow: ^3.0.1
   lottie: ^3.3.1
+  carousel_slider: 4.2.1
 
 
 dev_dependencies:
@@ -72,6 +73,9 @@ flutter:
   assets:
     - assets/Screenshot 2025-03-10 121816.png
     - assets/Animation - 1741585506474.json
+    - assets/game1.jpg
+    - assets/game2.jpg
+    - assets/game3.jpg
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 

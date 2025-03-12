@@ -384,10 +384,10 @@ class _CompanyRegistrationState extends State<CompanyRegistration> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 51, 143, 115),
+      backgroundColor:Colors.white,
       appBar: AppBar(
         title: Text('Company Registration', style: TextStyle(color: Colors.white)),
-        backgroundColor: const Color.fromARGB(255, 51, 143, 115),
+        backgroundColor:Colors.white,
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),

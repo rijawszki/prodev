@@ -367,10 +367,10 @@ class _RegisterScreenState extends State<RegistrationUser> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.deepPurple,
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text('User Registration', style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: Colors.white,
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
