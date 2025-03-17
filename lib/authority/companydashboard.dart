@@ -129,7 +129,7 @@ class _CompanyDashboardState extends State<Companydashboard> {
           await FirebaseFirestore.instance.collection('companies').doc(user.uid).get();
       if (companyDoc.exists) {
         setState(() {
-          companyName = companyDoc['name'] ?? 'Company';
+          companyName = companyDoc['name'] ?? 'Companies';
           companyIndustry = companyDoc['industry'] ?? 'Not Specified';
           companyWebsite = companyDoc['website'] ?? 'N/A';
           companyEmail = companyDoc['email'] ?? 'No Email';

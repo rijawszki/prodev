@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 
 class GamesPage extends StatelessWidget {
   const GamesPage({super.key});
@@ -9,27 +8,25 @@ class GamesPage extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
-
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            "learn through fun games 🎮",
+            "Learn Through Fun Games 🎮",
             style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 10),
 
-          // **Carousel of Trending Games**
-          CarouselSlider(
-            options: CarouselOptions(
-              height: 150,
-              autoPlay: true,
-              enlargeCenterPage: true,
+          // **Trending Games - Horizontal Scroll List**
+          SizedBox(
+            height: 150, // Fixed height
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: [
+                _buildGameImage('assets/game1.jpg'),
+                _buildGameImage('assets/game2.jpg'),
+                _buildGameImage('assets/game3.jpg'),
+              ],
             ),
-            items: [
-              _buildGameImage('assets/game1.jpg'),
-              _buildGameImage('assets/game2.jpg'),
-              _buildGameImage('assets/game3.jpg'),
-            ],
           ),
 
           const SizedBox(height: 20),
@@ -44,10 +41,10 @@ class GamesPage extends StatelessWidget {
           Expanded(
             child: ListView(
               children: [
-                _buildGameTile("ielts master", Icons.sports_esports, context),
+                _buildGameTile("IELTS Master", Icons.sports_esports, context),
                 _buildGameTile("Puzzle Challenge", Icons.extension, context),
-                _buildGameTile("new words", Icons.directions_car, context),
-                _buildGameTile("speak it", Icons.gamepad, context),
+                _buildGameTile("New Words", Icons.directions_car, context),
+                _buildGameTile("Speak It", Icons.gamepad, context),
                 _buildGameTile("Word Scramble", Icons.text_fields, context),
               ],
             ),
@@ -76,13 +73,17 @@ class GamesPage extends StatelessWidget {
     );
   }
 
-  /// **Builds a single game image for the carousel**
+  /// **Builds a single game image in the horizontal list**
   Widget _buildGameImage(String assetPath) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(10),
-      child: Image.asset(
-        assetPath,
-        fit: BoxFit.cover,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: Image.asset(
+          assetPath,
+          width: 200, // Fixed width for each image
+          fit: BoxFit.cover,
+        ),
       ),
     );
   }
@@ -94,7 +95,10 @@ class GamesPage extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: ListTile(
         leading: Icon(icon, color: Colors.deepPurple),
-        title: Text(gameTitle, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
+        title: Text(
+          gameTitle,
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+        ),
         trailing: const Icon(Icons.arrow_forward_ios, size: 18, color: Colors.grey),
         onTap: () {
           ScaffoldMessenger.of(context).showSnackBar(

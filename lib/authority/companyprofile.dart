@@ -34,7 +34,7 @@ class _CompanyProfileState extends State<CompanyProfile> {
     if (user != null) {
       try {
         DocumentSnapshot companyDoc =
-            await _firestore.collection('company').doc(user.uid).get();
+            await _firestore.collection('companies').doc(user.uid).get();
 
         if (companyDoc.exists && companyDoc.data() != null) {
           Map<String, dynamic> data =
