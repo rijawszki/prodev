@@ -87,7 +87,7 @@ class HomeScreen extends StatelessWidget {
         subtitle: Text("$pendingApplications applications waiting for review"),
         trailing: Icon(Icons.arrow_forward_ios, size: 18),
         onTap: () {
-          Navigator.pushNamed(context, "/JobApplicationsPage"); // ✅ Fixed semicolon
+          Navigator.pushNamed(context, "/JobListingsPage"); // ✅ Fixed semicolon
         },
       ),
     );

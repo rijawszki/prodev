@@ -1,95 +1,167 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class JobApplicationsPage extends StatelessWidget {
-  final List<Map<String, dynamic>> jobApplications = [
-    {"company": "Google", "position": "Software Engineer", "status": "Pending"},
-    {"company": "Microsoft", "position": "Data Scientist", "status": "Approved"},
-    {"company": "Amazon", "position": "Cloud Engineer", "status": "Pending"},
-    {"company": "Tesla", "position": "AI Researcher", "status": "Approved"},
-  ];
+class JobListingsPage extends StatefulWidget {
+  const JobListingsPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("My Job Applications"),
-        backgroundColor: Colors.deepPurple,
-      ),
-      backgroundColor: Colors.white,
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView.builder(
-          itemCount: jobApplications.length,
-          itemBuilder: (context, index) {
-            final job = jobApplications[index];
-            return _buildJobTile(context, job);
-          },
-        ),
-      ),
-    );
-  }
-
-  /// **Job Tile Widget**
-  Widget _buildJobTile(BuildContext context, Map<String, dynamic> job) {
-    bool isApproved = job["status"] == "Approved";
-    return Card(
-      elevation: 3,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      margin: EdgeInsets.symmetric(vertical: 6),
-      child: ListTile(
-        leading: Icon(
-          isApproved ? Icons.check_circle : Icons.hourglass_empty,
-          color: isApproved ? Colors.green : Colors.orange,
-          size: 30,
-        ),
-        title: Text(job["position"], style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        subtitle: Text(job["company"]),
-        trailing: Text(
-          job["status"],
-          style: TextStyle(color: isApproved ? Colors.green : Colors.orange, fontWeight: FontWeight.bold),
-        ),
-        onTap: () {
-          // Navigate to job details page (if needed)
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => JobDetailsPage(job: job),
-            ),
-          );
-        },
-      ),
-    );
-  }
+  _JobListingsPageState createState() => _JobListingsPageState();
 }
 
-/// **Job Details Page**
-class JobDetailsPage extends StatelessWidget {
-  final Map<String, dynamic> job;
-  
-  JobDetailsPage({required this.job});
+class _JobListingsPageState extends State<JobListingsPage> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  /// **Show Application Form**
+  void _showApplicationForm(String jobId, String jobTitle, String companyId, String companyName) {
+    TextEditingController coverLetterController = TextEditingController();
+    TextEditingController skillsController = TextEditingController();
+    TextEditingController resumeLinkController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Apply for $jobTitle"),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: coverLetterController,
+                  decoration: InputDecoration(labelText: "Cover Letter"),
+                  maxLines: 3,
+                ),
+                TextField(
+                  controller: skillsController,
+                  decoration: InputDecoration(labelText: "Skills (comma-separated)"),
+                ),
+                TextField(
+                  controller: resumeLinkController,
+                  decoration: InputDecoration(labelText: "Resume Link (Optional)"),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context), 
+              child: Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                await _applyForJob(
+                  jobId, jobTitle, companyId, companyName,
+                  coverLetterController.text, skillsController.text, resumeLinkController.text,
+                );
+                Navigator.pop(context); // Close the dialog after applying
+              },
+              child: Text("Submit"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  /// **Apply for a Job with Form Data**
+  Future<void> _applyForJob(
+    String jobId, String jobTitle, String companyId, String companyName,
+    String coverLetter, String skills, String resumeLink
+  ) async {
+    User? user = _auth.currentUser;
+
+    if (user != null) {
+      try {
+        // Check if user has already applied
+        var existingApplication = await _firestore
+            .collection('applications')
+            .where('jobId', isEqualTo: jobId)
+            .where('applicantId', isEqualTo: user.uid)
+            .get();
+
+        if (existingApplication.docs.isNotEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("You have already applied for this job.")),
+          );
+          return;
+        }
+
+        // Save application to Firestore
+        await _firestore.collection('applications').add({
+          'jobId': jobId,
+          'companyId': companyId,
+          'companyName': companyName,
+          'jobTitle': jobTitle,
+          'applicantId': user.uid,
+          'applicantName': user.displayName ?? "Applicant",
+          'coverLetter': coverLetter.isEmpty ? "Not Provided" : coverLetter,
+          'skills': skills.isEmpty ? "Not Provided" : skills,
+          'resumeLink': resumeLink.isEmpty ? "Not Provided" : resumeLink,
+          'status': "Pending",
+          'appliedDate': FieldValue.serverTimestamp(),
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Application sent successfully!")),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error applying for job: $e")),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Job Details"),
-        backgroundColor: Colors.deepPurple,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("Position: ${job["position"]}", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            SizedBox(height: 8),
-            Text("Company: ${job["company"]}", style: TextStyle(fontSize: 18)),
-            SizedBox(height: 8),
-            Text(
-              "Status: ${job["status"]}",
-              style: TextStyle(fontSize: 18, color: job["status"] == "Approved" ? Colors.green : Colors.orange),
-            ),
-          ],
-        ),
+      appBar: AppBar(title: Text("Available Jobs"), backgroundColor: Colors.deepPurple),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: _firestore.collection('jobs').snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator()); // Show loading spinner
+          }
+
+          if (snapshot.hasError) {
+            return Center(child: Text("Error loading jobs. Please try again."));
+          }
+
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return Center(child: Text("No jobs available."));
+          }
+
+          var jobs = snapshot.data!.docs;
+
+          return ListView.builder(
+            itemCount: jobs.length,
+            itemBuilder: (context, index) {
+              var job = jobs[index].data() as Map<String, dynamic>;
+
+              return Card(
+                elevation: 3,
+                margin: EdgeInsets.symmetric(vertical: 6),
+                child: ListTile(
+                  title: Text(job['jobTitle'] ?? "Unknown Job"),
+                  subtitle: Text(
+                    "Company: ${job['companyName'] ?? 'Unknown'}\nSalary: ${job['salary'] ?? 'Not Specified'}",
+                  ),
+                  trailing: ElevatedButton(
+                    onPressed: () => _showApplicationForm(
+                      jobs[index].id,
+                      job['jobTitle'] ?? "Unknown Job",
+                      job['companyId'] ?? "Unknown Company ID",
+                      job['companyName'] ?? "Unknown Company",
+                    ),
+                    child: Text("Apply"),
+                  ),
+                ),
+              );
+            },
+          );
+        },
       ),
     );
   }

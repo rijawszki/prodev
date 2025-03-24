@@ -90,6 +90,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'Companydashboard.dart';
+import 'company_jobs.dart';
 
 class CompanyHomepage extends StatefulWidget {
   const CompanyHomepage({super.key});
@@ -140,6 +141,7 @@ class _CompanyHomepageState extends State<CompanyHomepage> {
   /// **Screens for the Bottom Navigation Bar**
   final List<Widget> _screens = [
     Companydashboard(),
+    CompanyJobsPage(),
     
     
   ];

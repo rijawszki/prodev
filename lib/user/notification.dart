@@ -28,10 +28,6 @@ class _NotificationsPageState extends State<NotificationsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Notifications & Affirmations"),
-        backgroundColor: Colors.deepPurple,
-      ),
       body: Padding(
         padding: EdgeInsets.all(16),
         child: Column(

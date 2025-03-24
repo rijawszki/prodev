@@ -269,7 +269,7 @@ class _LoginScreenState extends State<LoginScreen> {
     DocumentSnapshot userDoc = await _firestore.collection('users').doc(uid).get();
     if (userDoc.exists) return userDoc['role'];
 
-    DocumentSnapshot companyDoc = await _firestore.collection('companies').doc(uid).get();
+    DocumentSnapshot companyDoc = await _firestore.collection('company').doc(uid).get();
     if (companyDoc.exists) return companyDoc['role'];
 
     return 'unknown';

@@ -138,6 +138,7 @@ import 'package:prodev/admin/admin_jobmanagement.dart';
 import 'package:prodev/admin/admin_user.dart';
 import 'package:prodev/admin/dashboard_admin.dart';
 import 'package:prodev/authority/companyHomepage.dart';
+import 'package:prodev/authority/company_jobs.dart';
 import 'package:prodev/authority/company_registration.dart';
 import 'package:prodev/authority/companyprofile.dart';
 import 'package:prodev/logoscreen.dart';
@@ -191,7 +192,7 @@ class MyApp extends StatelessWidget {
          '/IeltsPage': (context) => IeltsPage(),
         '/JobsPages': (context) => JobsPage(),
         '/GamesPage': (context) => GamesPage(),
-        '/JobApplicationsPage':(context)=>JobApplicationsPage(),
+        '/JobListingsPage':(context)=>JobListingsPage(),
         '/IELTSListeningPage': (context) => IELTSListeningPage(),
         '/IELTSReadingPage': (context) => IELTSReadingPage(),
         '/IELTSWritingPage': (context) => IELTSWritingPage(),
@@ -203,6 +204,7 @@ class MyApp extends StatelessWidget {
         '/adminCompanies': (context) => AdminCompanyManagementScreen(),
         '/adminJobs': (context) => AdminJobManagementScreen(),
         '/adminContent': (context) => AdminContentManagementScreen(),
+        '/CompanyJobsPage':(context)=>CompanyJobsPage()
 
         
 

@@ -2,7 +2,7 @@
 // import 'package:flutter/material.dart';
 
 // class Companydashboard extends StatelessWidget {
-//   const Companydashboard({super.key});
+//   const Companydashboard({super.key}); 
 
 //   @override
 //   Widget build(BuildContext context) {
