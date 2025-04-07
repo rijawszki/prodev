@@ -138,6 +138,7 @@ import 'package:prodev/admin/admin_jobmanagement.dart';
 import 'package:prodev/admin/admin_user.dart';
 import 'package:prodev/admin/dashboard_admin.dart';
 import 'package:prodev/authority/companyHomepage.dart';
+import 'package:prodev/authority/company_candidates.dart';
 import 'package:prodev/authority/company_jobs.dart';
 import 'package:prodev/authority/company_registration.dart';
 import 'package:prodev/authority/companyprofile.dart';
@@ -204,7 +205,8 @@ class MyApp extends StatelessWidget {
         '/adminCompanies': (context) => AdminCompanyManagementScreen(),
         '/adminJobs': (context) => AdminJobManagementScreen(),
         '/adminContent': (context) => AdminContentManagementScreen(),
-        '/CompanyJobsPage':(context)=>CompanyJobsPage()
+        '/CompanyJobsPage':(context)=>CompanyJobsPage(), 
+        '/CandidatesPage':(context)=>CandidatesPage(jobId: '',),
 
         
 

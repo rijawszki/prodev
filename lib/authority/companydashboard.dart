@@ -101,6 +101,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'company_candidates.dart';
 
 class Companydashboard extends StatefulWidget {
   const Companydashboard({super.key});
@@ -151,7 +152,7 @@ class _CompanyDashboardState extends State<Companydashboard> {
           _buildCompanyInfo(),
           const SizedBox(height: 20),
           _buildFeatureTile(Icons.work, "Manage Job Listings", "/company_jobs"),
-          _buildFeatureTile(Icons.people, "View Candidates", "/company_candidates"),
+          _buildFeatureTile(Icons.people, "View Candidates", "/CandidatesPage"),
           _buildFeatureTile(Icons.notifications, "Recent Notifications", "/company_notifications"),
           _buildFeatureTile(Icons.settings, "Company Settings", "/company_settings"),
         ],
