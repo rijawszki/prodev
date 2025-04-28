@@ -151,6 +151,7 @@ import 'package:prodev/user/ielts_reading.dart';
 import 'package:prodev/user/ielts_speaking.dart';
 import 'package:prodev/user/ielts_writing.dart';
 import 'package:prodev/user/jobapplication.dart';
+import 'package:prodev/user/jobdetails.dart';
 import 'package:prodev/user/jobs.dart';
 import 'package:prodev/user/mocktest.dart';
 import 'package:prodev/user/registration_user.dart';
@@ -206,7 +207,8 @@ class MyApp extends StatelessWidget {
         '/adminJobs': (context) => AdminJobManagementScreen(),
         '/adminContent': (context) => AdminContentManagementScreen(),
         '/CompanyJobsPage':(context)=>CompanyJobsPage(), 
-        '/CandidatesPage':(context)=>CandidatesPage(jobId: '',),
+        '/CandidatesPage':(context)=>CandidatesPage(jobId: '',)
+        
 
         
 
