@@ -35,69 +35,88 @@ class _CompanyJobsPageState extends State<CompanyJobsPage> {
 
   final List<String> _experienceOptions = ['Fresher', '1 year', '2 years', '3 years', '4 years', '5 years'];
   final List<String> _jobTypes = ['Full-time', 'Part-time', 'Internship', 'Freelance'];
-  final List<String> _shiftTypes = ['Day Shift', 'Night Shift', 'Flexible','Remote'];
+  final List<String> _shiftTypes = ['Day Shift', 'Night Shift', 'Flexible', 'Remote'];
+
+  bool _areFieldsValid() {
+    return _jobTitleController.text.trim().isNotEmpty &&
+        _companyNameController.text.trim().isNotEmpty &&
+        _locationController.text.trim().isNotEmpty &&
+        _salaryMinController.text.trim().isNotEmpty &&
+        _salaryMaxController.text.trim().isNotEmpty &&
+        _jobDescriptionController.text.trim().isNotEmpty &&
+        _benefitsController.text.trim().isNotEmpty &&
+        _skills.isNotEmpty &&
+        _educations.isNotEmpty &&
+        _languages.isNotEmpty;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCompanyName(); // Load company name when page opens
+  }
+
+  Future<void> _loadCompanyName() async {
+    User? user = _auth.currentUser;
+    if (user != null) {
+      DocumentSnapshot userDoc = await _firestore.collection('company').doc(user.uid).get();
+      if (userDoc.exists) {
+        setState(() {
+          _companyNameController.text = userDoc['name'] ?? '';
+        });
+      }
+    }
+  }
 
   Future<void> _postJob() async {
-  User? user = _auth.currentUser;
-  if (user != null) {
-    if (_jobTitleController.text.trim().isEmpty ||
-        _companyNameController.text.trim().isEmpty ||
-        _locationController.text.trim().isEmpty ||
-        _salaryMinController.text.trim().isEmpty ||
-        _salaryMaxController.text.trim().isEmpty ||
-        _jobDescriptionController.text.trim().isEmpty ||
-        _skills.isEmpty ||
-        _educations.isEmpty ||
-        _languages.isEmpty ||
-        _benefitsController.text.trim().isEmpty) {
+    User? user = _auth.currentUser;
+    if (user != null) {
+      await _firestore.collection('jobs').add({
+        'companyId': user.uid,
+        'companyName': _companyNameController.text.trim(),
+        'jobTitle': _jobTitleController.text.trim(),
+        'location': _locationController.text.trim(),
+        'jobType': _jobType,
+        'shiftType': _shiftType,
+        'salaryRange': '${_salaryMinController.text.trim()} - ${_salaryMaxController.text.trim()}',
+        'description': _jobDescriptionController.text.trim(),
+        'benefits': _benefitsController.text.trim(),
+        'skills': _skills,
+        'education': _educations,
+        'languages': _languages,
+        'experience': _experience,
+        'createdAt': FieldValue.serverTimestamp(),
+        'approved': false,
+      });
+
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("All fields are required!")),
+        const SnackBar(content: Text("Job Posted Successfully!")),
       );
-      return;
+
+      _clearFields();
     }
-
-    await _firestore.collection('jobs').add({
-      'companyId': user.uid,
-      'companyName': _companyNameController.text.trim(),
-      'jobTitle': _jobTitleController.text.trim(),
-      'location': _locationController.text.trim(),
-      'jobType': _jobType,
-      'shiftType': _shiftType,
-      'salaryRange': '${_salaryMinController.text.trim()} - ${_salaryMaxController.text.trim()}',
-      'description': _jobDescriptionController.text.trim(),
-      'benefits': _benefitsController.text.trim(),
-      'skills': _skills,
-      'education': _educations,
-      'languages': _languages,
-      'experience': _experience,
-      'createdAt': FieldValue.serverTimestamp(),
-      'approved': false,
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Job Posted Successfully!")),
-    );
-
-    _clearFields();
   }
-}
-
 
   void _clearFields() {
     _jobTitleController.clear();
-    _companyNameController.clear();
+    //_companyNameController.clear();  // don't clear company name
     _locationController.clear();
     _salaryMinController.clear();
     _salaryMaxController.clear();
     _jobDescriptionController.clear();
     _benefitsController.clear();
-    _skills.clear();
-    _educations.clear();
-    _languages.clear();
-    _experience = 'Fresher';
-    _jobType = 'Full-time';
-    _shiftType = 'Day Shift';
-    setState(() {});
+    _skillController.clear();
+    _educationController.clear();
+    _languageController.clear();
+
+    setState(() {
+      _skills.clear();
+      _educations.clear();
+      _languages.clear();
+      _experience = 'Fresher';
+      _jobType = 'Full-time';
+      _shiftType = 'Day Shift';
+    });
   }
 
   void _addItem(String type) {
@@ -159,7 +178,6 @@ class _CompanyJobsPageState extends State<CompanyJobsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Profile Insights
             const Text("Profile Insights", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
             const SizedBox(height: 10),
 
@@ -182,7 +200,6 @@ class _CompanyJobsPageState extends State<CompanyJobsPage> {
             ),
 
             const SizedBox(height: 20),
-            // Job Details
             const Text("Job Details", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
             const SizedBox(height: 10),
 
@@ -238,21 +255,18 @@ class _CompanyJobsPageState extends State<CompanyJobsPage> {
             ),
 
             const SizedBox(height: 20),
-            // Location
             const Text("Location", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
             const SizedBox(height: 10),
 
             TextField(controller: _locationController, decoration: const InputDecoration(labelText: "Location")),
 
             const SizedBox(height: 20),
-            // Benefits
             const Text("Benefits", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
             const SizedBox(height: 10),
 
             TextField(controller: _benefitsController, decoration: const InputDecoration(labelText: "Benefits")),
 
             const SizedBox(height: 20),
-            // Full Job Description
             const Text("Full Job Description", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
             const SizedBox(height: 10),
 

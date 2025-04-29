@@ -2,166 +2,164 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-class JobListingsPage extends StatefulWidget {
-  const JobListingsPage({super.key});
+class JobApplicationPage extends StatefulWidget {
+  final String jobId;
+  final String jobTitle;
+  final String companyId;
+  final String companyName;
+
+  const JobApplicationPage({
+    super.key,
+    required this.jobId,
+    required this.jobTitle,
+    required this.companyId,
+    required this.companyName,
+  });
 
   @override
-  _JobListingsPageState createState() => _JobListingsPageState();
+  _JobApplicationPageState createState() => _JobApplicationPageState();
 }
 
-class _JobListingsPageState extends State<JobListingsPage> {
+class _JobApplicationPageState extends State<JobApplicationPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  /// **Show Application Form**
-  void _showApplicationForm(String jobId, String jobTitle, String companyId, String companyName) {
-    TextEditingController coverLetterController = TextEditingController();
-    TextEditingController skillsController = TextEditingController();
-    TextEditingController resumeLinkController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  final firstNameController = TextEditingController();
+  final lastNameController = TextEditingController();
+  final phoneController = TextEditingController();
+  final emailController = TextEditingController();
+  final addressController = TextEditingController();
+  final experienceController = TextEditingController();
+  final cvController = TextEditingController();
 
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text("Apply for $jobTitle"),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: coverLetterController,
-                  decoration: InputDecoration(labelText: "Cover Letter"),
-                  maxLines: 3,
-                ),
-                TextField(
-                  controller: skillsController,
-                  decoration: InputDecoration(labelText: "Skills (comma-separated)"),
-                ),
-                TextField(
-                  controller: resumeLinkController,
-                  decoration: InputDecoration(labelText: "Resume Link (Optional)"),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context), 
-              child: Text("Cancel"),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                await _applyForJob(
-                  jobId, jobTitle, companyId, companyName,
-                  coverLetterController.text, skillsController.text, resumeLinkController.text,
-                );
-                Navigator.pop(context); // Close the dialog after applying
-              },
-              child: Text("Submit"),
-            ),
-          ],
-        );
-      },
-    );
-  }
+  String relocate = 'Yes';
 
-  /// **Apply for a Job with Form Data**
-  Future<void> _applyForJob(
-    String jobId, String jobTitle, String companyId, String companyName,
-    String coverLetter, String skills, String resumeLink
-  ) async {
+  Future<void> _submitApplication() async {
+    if (!_formKey.currentState!.validate()) return;
+
     User? user = _auth.currentUser;
+    if (user == null) return;
 
-    if (user != null) {
-      try {
-        // Check if user has already applied
-        var existingApplication = await _firestore
-            .collection('applications')
-            .where('jobId', isEqualTo: jobId)
-            .where('applicantId', isEqualTo: user.uid)
-            .get();
+    try {
+      var existing = await _firestore
+          .collection('applications')
+          .where('jobId', isEqualTo: widget.jobId)
+          .where('applicantId', isEqualTo: user.uid)
+          .get();
 
-        if (existingApplication.docs.isNotEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("You have already applied for this job.")),
-          );
-          return;
-        }
-
-        // Save application to Firestore
-        await _firestore.collection('applications').add({
-          'jobId': jobId,
-          'companyId': companyId,
-          'companyName': companyName,
-          'jobTitle': jobTitle,
-          'applicantId': user.uid,
-          'applicantName': user.displayName ?? "Applicant",
-          'coverLetter': coverLetter.isEmpty ? "Not Provided" : coverLetter,
-          'skills': skills.isEmpty ? "Not Provided" : skills,
-          'resumeLink': resumeLink.isEmpty ? "Not Provided" : resumeLink,
-          'status': "Pending",
-          'appliedDate': FieldValue.serverTimestamp(),
-        });
-
+      if (existing.docs.isNotEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Application sent successfully!")),
+          const SnackBar(content: Text("You already applied for this job.")),
         );
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error applying for job: $e")),
-        );
+        return;
       }
+
+      await _firestore.collection('applications').add({
+        'jobId': widget.jobId,
+        'jobTitle': widget.jobTitle,
+        'companyId': widget.companyId,
+        'companyName': widget.companyName,
+        'applicantId': user.uid,
+        'applicantName': user.displayName ?? '${firstNameController.text} ${lastNameController.text}',
+        'firstName': firstNameController.text,
+        'lastName': lastNameController.text,
+        'phone': phoneController.text,
+        'email': emailController.text,
+        'address': addressController.text,
+        'relocate': relocate,
+        'experience': experienceController.text,
+        'cvUrl': cvController.text.isEmpty ? 'Not Provided' : cvController.text,
+        'status': 'Pending',
+        'appliedDate': FieldValue.serverTimestamp(),
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Application submitted successfully!")),
+      );
+      Navigator.pop(context);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $e")),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Available Jobs"), backgroundColor: Colors.deepPurple),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: _firestore.collection('jobs').snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator()); // Show loading spinner
-          }
-
-          if (snapshot.hasError) {
-            return Center(child: Text("Error loading jobs. Please try again."));
-          }
-
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return Center(child: Text("No jobs available."));
-          }
-
-          var jobs = snapshot.data!.docs;
-
-          return ListView.builder(
-            itemCount: jobs.length,
-            itemBuilder: (context, index) {
-              var job = jobs[index].data() as Map<String, dynamic>;
-
-              return Card(
-                elevation: 3,
-                margin: EdgeInsets.symmetric(vertical: 6),
-                child: ListTile(
-                  title: Text(job['jobTitle'] ?? "Unknown Job"),
-                  subtitle: Text(
-                    "Company: ${job['companyName'] ?? 'Unknown'}\nSalary: ${job['salary'] ?? 'Not Specified'}",
+      appBar: AppBar(
+        title: Text("Apply to ${widget.companyName}"),
+        backgroundColor: Colors.blue,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              TextFormField(
+                controller: firstNameController,
+                decoration: const InputDecoration(labelText: "First Name"),
+                validator: (value) => value!.isEmpty ? 'Required' : null,
+              ),
+              TextFormField(
+                controller: lastNameController,
+                decoration: const InputDecoration(labelText: "Last Name"),
+                validator: (value) => value!.isEmpty ? 'Required' : null,
+              ),
+              TextFormField(
+                controller: phoneController,
+                decoration: const InputDecoration(labelText: "Phone Number"),
+                keyboardType: TextInputType.phone,
+                validator: (value) => value!.isEmpty ? 'Required' : null,
+              ),
+              TextFormField(
+                controller: emailController,
+                decoration: const InputDecoration(labelText: "Email"),
+                keyboardType: TextInputType.emailAddress,
+                validator: (value) => value!.isEmpty ? 'Required' : null,
+              ),
+              TextFormField(
+                controller: addressController,
+                decoration: const InputDecoration(labelText: "Address"),
+              ),
+              DropdownButtonFormField<String>(
+                value: relocate,
+                decoration: const InputDecoration(labelText: "Willing to Relocate?"),
+                items: ['Yes', 'No']
+                    .map((val) => DropdownMenuItem(value: val, child: Text(val)))
+                    .toList(),
+                onChanged: (val) {
+                  setState(() {
+                    relocate = val!;
+                  });
+                },
+              ),
+              TextFormField(
+                controller: experienceController,
+                decoration: const InputDecoration(labelText: "Experience"),
+              ),
+              TextFormField(
+                controller: cvController,
+                decoration: const InputDecoration(labelText: "CV URL"),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: _submitApplication,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
-                  trailing: ElevatedButton(
-                    onPressed: () => _showApplicationForm(
-                      jobs[index].id,
-                      job['jobTitle'] ?? "Unknown Job",
-                      job['companyId'] ?? "Unknown Company ID",
-                      job['companyName'] ?? "Unknown Company",
-                    ),
-                    child: Text("Apply"),
-                  ),
+                  child: const Text("Submit Application", style: TextStyle(fontSize: 18)),
                 ),
-              );
-            },
-          );
-        },
+              )
+            ],
+          ),
+        ),
       ),
     );
   }

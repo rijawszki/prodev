@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:prodev/user/jobapplication.dart';
 
 class JobDetailsPage extends StatelessWidget {
   final String jobId;
@@ -105,11 +106,20 @@ class JobDetailsPage extends StatelessWidget {
                       width: double.infinity,
                       height: 50,
                       child: ElevatedButton(
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text("Applied for ${job['jobTitle']}")),
-                          );
-                        },
+             onPressed: () {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => JobApplicationPage(
+        jobId: jobId,
+        jobTitle: job['jobTitle'] ?? '',
+        companyId: job['companyId'] ?? '',
+        companyName: job['companyName'] ?? '',
+      ),
+    ),
+  );
+},
+
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue,
                           shape: RoundedRectangleBorder(

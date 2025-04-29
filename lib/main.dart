@@ -194,7 +194,6 @@ class MyApp extends StatelessWidget {
          '/IeltsPage': (context) => IeltsPage(),
         '/JobsPages': (context) => JobsPage(),
         '/GamesPage': (context) => GamesPage(),
-        '/JobListingsPage':(context)=>JobListingsPage(),
         '/IELTSListeningPage': (context) => IELTSListeningPage(),
         '/IELTSReadingPage': (context) => IELTSReadingPage(),
         '/IELTSWritingPage': (context) => IELTSWritingPage(),
@@ -207,7 +206,8 @@ class MyApp extends StatelessWidget {
         '/adminJobs': (context) => AdminJobManagementScreen(),
         '/adminContent': (context) => AdminContentManagementScreen(),
         '/CompanyJobsPage':(context)=>CompanyJobsPage(), 
-        '/CandidatesPage':(context)=>CandidatesPage(jobId: '',)
+        '/CandidatesPage':(context)=>CandidatesPage(),
+       
         
 
         

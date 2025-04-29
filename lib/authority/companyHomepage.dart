@@ -89,6 +89,7 @@ import 'package:flashy_tab_bar2/flashy_tab_bar2.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:prodev/authority/company_candidates.dart';
 import 'Companydashboard.dart';
 import 'company_jobs.dart';
 
@@ -142,6 +143,7 @@ class _CompanyHomepageState extends State<CompanyHomepage> {
   final List<Widget> _screens = [
     Companydashboard(),
     CompanyJobsPage(),
+    CandidatesPage(),
     
     
   ];
