@@ -98,9 +98,11 @@ import 'package:flashy_tab_bar2/flashy_tab_bar2.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:prodev/user/jobsearch.dart';
+import 'package:prodev/user/userchatlistscreen.dart';
 import 'ielts.dart';
 import 'jobs.dart';
-import 'games.dart';
+import 'companychat.dart';
 import 'userhome.dart';
 import 'notification.dart';
 
@@ -151,8 +153,8 @@ class _UserHomepageState extends State<UserHomepage> {
     HomeScreen(),
     IeltsPage(),
     JobsPage(),
-    GamesPage(),
-    NotificationsPage(),
+    UserChatListScreen(),
+    JobSearchScreen(),
   ];
 
   @override
@@ -187,8 +189,9 @@ class _UserHomepageState extends State<UserHomepage> {
           FlashyTabBarItem(icon: Icon(Icons.home), title: Text('Home')),
           FlashyTabBarItem(icon: Icon(Icons.school), title: Text('IELTS')),
           FlashyTabBarItem(icon: Icon(Icons.work), title: Text('Jobs')),
-          FlashyTabBarItem(icon: Icon(Icons.videogame_asset), title: Text('Games')),
-          FlashyTabBarItem(icon: Icon(Icons.notifications), title: Text('Notifications')),
+          FlashyTabBarItem(icon: Icon(Icons.chat_bubble_outline_outlined
+          ), title: Text('chat')),
+          FlashyTabBarItem(icon: Icon(Icons.search_rounded), title: Text('job search')),
         ],
       ),
     );

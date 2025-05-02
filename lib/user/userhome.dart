@@ -1,95 +1,242 @@
+import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'jobapplication.dart';
+import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _NewsScreenState();
+}
+
+class _NewsScreenState extends State<HomeScreen> {
+  final String _apiKey = 'pub_843008d8562226acc932674c97fd45f79a3f5';
+  List _articles = [];
+  List _filteredArticles = [];
+  bool _isLoading = true;
+
+  late PageController _pageController;
+  late Timer _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: 0);
+    fetchNews();
+
+    // Auto-scroll timer
+    _timer = Timer.periodic(const Duration(seconds: 4), (Timer timer) {
+      if (_pageController.hasClients && _filteredArticles.isNotEmpty) {
+        int nextPage = _pageController.page!.round() + 1;
+        if (nextPage >= _filteredArticles.length) nextPage = 0;
+        _pageController.animateToPage(
+          nextPage,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    _timer.cancel();
+    super.dispose();
+  }
+
+  Future<void> fetchNews() async {
+    final url = Uri.parse(
+        'https://newsdata.io/api/1/news?apikey=$_apiKey&country=in&category=education,science,technology');
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final json = jsonDecode(response.body);
+      final results = json['results'] ?? [];
+
+      setState(() {
+        _articles = results;
+        _filteredArticles = results;
+        _isLoading = false;
+      });
+    } else {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _filterArticles(String query) {
+    if (query.isEmpty) {
+      setState(() {
+        _filteredArticles = _articles;
+      });
+      return;
+    }
+
+    setState(() {
+      _filteredArticles = _articles.where((article) {
+        final title = (article['title'] ?? '').toString().toLowerCase();
+        return title.contains(query.toLowerCase());
+      }).toList();
+    });
+  }
+
+  Future<void> _launchUrl(String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: SingleChildScrollView( // ✅ Prevents bottom overflow
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              /// **Title**
-              Text(
-                "Dashboard",
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.deepPurple),
-              ),
-              SizedBox(height: 10),
+      backgroundColor: Colors.grey[100],
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _filteredArticles.isEmpty
+              ? const Center(child: Text("No matching news found"))
+              : ListView(
+                  padding: const EdgeInsets.symmetric(vertical: 24),
+                  children: [
+                    // Welcome Message
+                    TweenAnimationBuilder<double>(
+                      tween: Tween<double>(begin: 0, end: 1),
+                      duration: const Duration(milliseconds: 1000),
+                      curve: Curves.easeOut,
+                      builder: (context, value, child) {
+                        return Opacity(
+                          opacity: value,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Text(
+                              "👋 Welcome to ProDev",
+                              style: GoogleFonts.poppins(
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.deepPurple[700],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
 
-              /// **IELTS Progress Section**
-              _buildSectionTitle("IELTS Progress"),
-              _buildProgressTile("Reading", 0.75),
-              _buildProgressTile("Writing", 0.60),
-              _buildProgressTile("Listening", 0.85),
-              _buildProgressTile("Speaking", 0.40),
-              SizedBox(height: 20),
+                    const SizedBox(height: 16),
 
-              /// **Job Applications Section**
-              _buildSectionTitle("Job Applications"),
-              _buildJobApplicationTile(context, 5), // ✅ Fixed: Pass context
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+                    // Search Bar
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: TextField(
+                        onChanged: _filterArticles,
+                        decoration: InputDecoration(
+                          hintText: "Search news...",
+                          prefixIcon: const Icon(Icons.search),
+                          filled: true,
+                          fillColor: Colors.white,
+                          contentPadding:
+                              const EdgeInsets.symmetric(vertical: 12),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                      ),
+                    ),
 
-  /// **Reusable Section Title**
-  Widget _buildSectionTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Text(
-        title,
-        style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Colors.black87),
-      ),
-    );
-  }
+                    const SizedBox(height: 20),
 
-  /// **Progress Tile for IELTS**
-  Widget _buildProgressTile(String skill, double progress) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      margin: EdgeInsets.symmetric(vertical: 6),
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(skill, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-            SizedBox(height: 8),
-            LinearProgressIndicator(
-              value: progress,
-              backgroundColor: Colors.grey[300],
-              color: Colors.deepPurple,
-              minHeight: 8,
-            ),
-            SizedBox(height: 5),
-            Text("${(progress * 100).toInt()}% completed", style: TextStyle(color: Colors.grey[700])),
-          ],
-        ),
-      ),
-    );
-  }
+                    // Section Title
+                    const Padding(
+                      padding: EdgeInsets.only(left: 20, bottom: 8),
+                      child: Text(
+                        "📢 Daily Career News",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
 
-  /// **Job Application Tile**
-  Widget _buildJobApplicationTile(BuildContext context, int pendingApplications) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      margin: EdgeInsets.symmetric(vertical: 6),
-      child: ListTile(
-        leading: Icon(Icons.work, size: 30, color: Colors.deepPurple),
-        title: Text("Pending Applications", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-        subtitle: Text("$pendingApplications applications waiting for review"),
-        trailing: Icon(Icons.arrow_forward_ios, size: 18),
-        onTap: () {
-          Navigator.pushNamed(context, "/JobListingsPage"); // ✅ Fixed semicolon
-        },
-      ),
+                    // Auto-Scrolling Carousel
+                    SizedBox(
+                      height: 240,
+                      child: PageView.builder(
+                        controller: _pageController,
+                        scrollDirection: Axis.horizontal,
+                        itemCount: _filteredArticles.length,
+                        itemBuilder: (context, index) {
+                          final article = _filteredArticles[index];
+                          final imageUrl = article['image_url'];
+
+                          return GestureDetector(
+                            onTap: () {
+                              if (article['link'] != null) {
+                                _launchUrl(article['link']);
+                              }
+                            },
+                            child: Container(
+                              width: 300,
+                              margin: const EdgeInsets.only(
+                                  left: 20, right: 10, bottom: 12),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black12,
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: const BorderRadius.vertical(
+                                        top: Radius.circular(16)),
+                                    child: imageUrl != null
+                                        ? Image.network(
+                                            imageUrl,
+                                            height: 130,
+                                            width: double.infinity,
+                                            fit: BoxFit.cover,
+                                          )
+                                        : Container(
+                                            height: 130,
+                                            color: Colors.deepPurple[100],
+                                            child: const Center(
+                                              child: Icon(
+                                                  Icons.image_not_supported),
+                                            ),
+                                          ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(10),
+                                    child: Text(
+                                      article['title'] ?? 'No title',
+                                      maxLines: 3,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
     );
   }
 }

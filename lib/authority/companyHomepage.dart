@@ -90,8 +90,10 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:prodev/authority/company_candidates.dart';
+import 'package:prodev/authority/companychatlist.dart';
 import 'Companydashboard.dart';
 import 'company_jobs.dart';
+import 'companychatlist.dart';
 
 class CompanyHomepage extends StatefulWidget {
   const CompanyHomepage({super.key});
@@ -144,6 +146,7 @@ class _CompanyHomepageState extends State<CompanyHomepage> {
     Companydashboard(),
     CompanyJobsPage(),
     CandidatesPage(),
+    CompanyChatListScreen()
     
     
   ];

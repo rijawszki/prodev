@@ -144,7 +144,7 @@ import 'package:prodev/authority/company_registration.dart';
 import 'package:prodev/authority/companyprofile.dart';
 import 'package:prodev/logoscreen.dart';
 import 'package:prodev/splashscreen.dart';
-import 'package:prodev/user/games.dart';
+import 'package:prodev/user/companychat.dart';
 import 'package:prodev/user/ielts.dart';
 import 'package:prodev/user/ielts_listening.dart';
 import 'package:prodev/user/ielts_reading.dart';
@@ -193,7 +193,6 @@ class MyApp extends StatelessWidget {
         '/Logoscreen':( context)=>Logoscreen(),
          '/IeltsPage': (context) => IeltsPage(),
         '/JobsPages': (context) => JobsPage(),
-        '/GamesPage': (context) => GamesPage(),
         '/IELTSListeningPage': (context) => IELTSListeningPage(),
         '/IELTSReadingPage': (context) => IELTSReadingPage(),
         '/IELTSWritingPage': (context) => IELTSWritingPage(),
@@ -207,6 +206,8 @@ class MyApp extends StatelessWidget {
         '/adminContent': (context) => AdminContentManagementScreen(),
         '/CompanyJobsPage':(context)=>CompanyJobsPage(), 
         '/CandidatesPage':(context)=>CandidatesPage(),
+  
+        
        
         
 
