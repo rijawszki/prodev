@@ -193,7 +193,7 @@ class MyApp extends StatelessWidget {
         '/Logoscreen':( context)=>Logoscreen(),
          '/IeltsPage': (context) => IeltsPage(),
         '/JobsPages': (context) => JobsPage(),
-        '/IELTSListeningPage': (context) => IELTSListeningPage(),
+        '/IELTSListeningPage': (context) => ListeningPage(),
         '/IELTSReadingPage': (context) => IELTSReadingPage(),
         '/IELTSWritingPage': (context) => IELTSWritingPage(),
         '/IELTSSpeakingPage': (context) => IELTSSpeakingPage(),
@@ -203,7 +203,7 @@ class MyApp extends StatelessWidget {
         '/adminUsers': (context) => AdminUserManagementScreen(),
         '/adminCompanies': (context) => AdminCompanyManagementScreen(),
         '/adminJobs': (context) => AdminJobManagementScreen(),
-        '/adminContent': (context) => AdminContentManagementScreen(),
+        '/adminContent': (context) => AdminContentPage(),
         '/CompanyJobsPage':(context)=>CompanyJobsPage(), 
         '/CandidatesPage':(context)=>CandidatesPage(),
   

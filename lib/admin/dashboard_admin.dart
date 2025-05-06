@@ -26,7 +26,7 @@ class AdminDashboard extends StatelessWidget {
             _buildDashboardCard(context, "Users", Icons.people, Colors.blue, AdminUserManagementScreen()),
             _buildDashboardCard(context, "Companies", Icons.business, Colors.green, AdminCompanyManagementScreen()),
             _buildDashboardCard(context, "Jobs", Icons.work, Colors.orange, AdminJobManagementScreen()),
-            _buildDashboardCard(context, "Content", Icons.article, Colors.purple, AdminContentManagementScreen()),
+            _buildDashboardCard(context, "Content", Icons.article, Colors.purple, AdminContentPage()),
           ],
         ),
       ),
