@@ -163,78 +163,162 @@ class _NewsScreenState extends State<HomeScreen> {
                     ),
 
                     // Auto-Scrolling Carousel
-                    SizedBox(
-                      height: 240,
-                      child: PageView.builder(
-                        controller: _pageController,
-                        scrollDirection: Axis.horizontal,
-                        itemCount: _filteredArticles.length,
-                        itemBuilder: (context, index) {
-                          final article = _filteredArticles[index];
-                          final imageUrl = article['image_url'];
+                    // SizedBox(
+                    //   height: 240,
+                    //   child: PageView.builder(
+                    //     controller: _pageController,
+                    //     scrollDirection: Axis.horizontal,
+                    //     itemCount: _filteredArticles.length,
+                    //     itemBuilder: (context, index) {
+                    //       final article = _filteredArticles[index];
+                    //       final imageUrl = article['image_url'];
 
-                          return GestureDetector(
-                            onTap: () {
-                              if (article['link'] != null) {
-                                _launchUrl(article['link']);
-                              }
-                            },
-                            child: Container(
-                              width: 300,
-                              margin: const EdgeInsets.only(
-                                  left: 20, right: 10, bottom: 12),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(16),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black12,
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ],
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: const BorderRadius.vertical(
-                                        top: Radius.circular(16)),
-                                    child: imageUrl != null
-                                        ? Image.network(
-                                            imageUrl,
-                                            height: 130,
-                                            width: double.infinity,
-                                            fit: BoxFit.cover,
-                                          )
-                                        : Container(
-                                            height: 130,
-                                            color: Colors.deepPurple[100],
-                                            child: const Center(
-                                              child: Icon(
-                                                  Icons.image_not_supported),
-                                            ),
-                                          ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(10),
-                                    child: Text(
-                                      article['title'] ?? 'No title',
-                                      maxLines: 3,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
+                    //       return GestureDetector(
+                    //         onTap: () {
+                    //           if (article['link'] != null) {
+                    //             _launchUrl(article['link']);
+                    //           }
+                    //         },
+                    //         child: Container(
+                    //           width: 300,
+                    //           margin: const EdgeInsets.only(
+                    //               left: 20, right: 10, bottom: 12),
+                    //           decoration: BoxDecoration(
+                    //             color: Colors.white,
+                    //             borderRadius: BorderRadius.circular(16),
+                    //             boxShadow: [
+                    //               BoxShadow(
+                    //                 color: Colors.black12,
+                    //                 blurRadius: 8,
+                    //                 offset: const Offset(0, 4),
+                    //               ),
+                    //             ],
+                    //           ),
+                    //           child: Column(
+                    //             crossAxisAlignment: CrossAxisAlignment.start,
+                    //             children: [
+                    //               ClipRRect(
+                    //                 borderRadius: const BorderRadius.vertical(
+                    //                     top: Radius.circular(16)),
+                    //                 child: imageUrl != null
+                    //                     ? Image.network(
+                    //                         imageUrl,
+                    //                         height: 130,
+                    //                         width: double.infinity,
+                    //                         fit: BoxFit.cover,
+                    //                       )
+                    //                     : Container(
+                    //                         height: 130,
+                    //                         color: Colors.deepPurple[100],
+                    //                         child: const Center(
+                    //                           child: Icon(
+                    //                               Icons.image_not_supported),
+                    //                         ),
+                    //                       ),
+                    //               ),
+                    //               Padding(
+                    //                 padding: const EdgeInsets.all(10),
+                    //                 child: Text(
+                    //                   article['title'] ?? 'No title',
+                    //                   maxLines: 3,
+                    //                   overflow: TextOverflow.ellipsis,
+                    //                   style: const TextStyle(
+                    //                     fontSize: 14,
+                    //                     fontWeight: FontWeight.w600,
+                    //                   ),
+                    //                 ),
+                    //               ),
+                    //             ],
+                    //           ),
+                    //         ),
+                    //       );
+                    //     },
+                    //   ),
+                    // ),
+                    SizedBox(
+  height: 240,
+  child: PageView.builder(
+    controller: _pageController,
+    scrollDirection: Axis.horizontal,
+    itemCount: _filteredArticles.length,
+    itemBuilder: (context, index) {
+      final article = _filteredArticles[index];
+      final imageUrl = article['image_url'];
+
+      return GestureDetector(
+        onTap: () {
+          if (article['link'] != null) {
+            _launchUrl(article['link']);
+          }
+        },
+        child: Container(
+          width: 300,
+          margin: const EdgeInsets.only(left: 20, right: 10, bottom: 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black12,
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                child: imageUrl != null
+                    ? Image.network(
+                        imageUrl,
+                        height: 130,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) {
+                            // Image loaded, show the actual image
+                            return child;
+                          } else {
+                            // While loading, show the placeholder from assets
+                            return Image.asset(
+                              'assets/nothumb.jpg', // Placeholder image from assets
+                              height: 130,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                            );
+                          }
+                        },   
+                      )
+                    : Container(
+                        height: 130,
+                        color: Colors.deepPurple[100],
+                        child: const Center(
+                          child: Icon(Icons.image_not_supported),
+                        ),
                       ),
-                    ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(10),
+                child: Text(
+                  article['title'] ?? 'No title',
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  ),
+)
+
                   ],
                 ),
     );

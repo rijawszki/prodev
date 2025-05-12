@@ -1,3 +1,4 @@
+
 // import 'package:flutter/material.dart';
 // import 'package:firebase_auth/firebase_auth.dart';
 // import 'package:cloud_firestore/cloud_firestore.dart';
@@ -28,6 +29,8 @@
 //   File? _image;
 //   Uint8List? _webImage;
 //   bool _isUploading = false;
+//   bool _isPasswordVisible = false;
+//   bool _isConfirmPasswordVisible = false;
 //   String? _imageUrl;
 
 //   /// **Pick Image (Supports Web & Mobile)**
@@ -48,11 +51,9 @@
 //     }
 //   }
 
-//   /// **Upload Image to Cloudinary (Mobile)**
+//   /// **Upload Image to Cloudinary**
 //   Future<String?> _uploadImageToCloudinary(File imageFile) async {
-//     setState(() {
-//       _isUploading = true;
-//     });
+//     setState(() => _isUploading = true);
 
 //     try {
 //       const cloudinaryUrl = "https://api.cloudinary.com/v1_1/dvijd3hxi/image/upload";
@@ -66,21 +67,12 @@
 //       final responseData = await response.stream.bytesToString();
 //       final data = json.decode(responseData);
 
-//       if (response.statusCode == 200) {
-//         return data['secure_url'];
-//       } else {
-//         ScaffoldMessenger.of(context).showSnackBar(
-//           SnackBar(content: Text('Image upload failed!')),
-//         );
-//         return null;
-//       }
+//       return response.statusCode == 200 ? data['secure_url'] : null;
 //     } catch (e) {
 //       print("❌ Cloudinary Upload Error: $e");
 //       return null;
 //     } finally {
-//       setState(() {
-//         _isUploading = false;
-//       });
+//       setState(() => _isUploading = false);
 //     }
 //   }
 
@@ -104,7 +96,6 @@
 
 //     try {
 //       String? imageUrl;
-
 //       if (!kIsWeb && _image != null) {
 //         imageUrl = await _uploadImageToCloudinary(_image!);
 //       }
@@ -122,8 +113,7 @@
 //           'age': int.parse(_ageController.text.trim()),
 //           'uid': user.uid,
 //           'profileImageUrl': imageUrl ?? '',
-//           'role':'user',
-        
+//           'role': 'user',
 //         });
 
 //         ScaffoldMessenger.of(context).showSnackBar(
@@ -142,10 +132,10 @@
 //   @override
 //   Widget build(BuildContext context) {
 //     return Scaffold(
-//       backgroundColor: Colors.deepPurple,
+//       backgroundColor: Colors.white,
 //       appBar: AppBar(
 //         title: Text('User Registration', style: TextStyle(color: Colors.white)),
-//         backgroundColor:Colors.deepPurple,
+//         backgroundColor: Colors.white,
 //       ),
 //       body: Padding(
 //         padding: EdgeInsets.all(16.0),
@@ -171,51 +161,23 @@
 //                           : null,
 //                     ),
 //                   ),
-//                   SizedBox(height: 10),
+//                   SizedBox(height: 20),
 
 //                   // Name
-//                   TextFormField(
-//                     controller: _nameController,
-//                     decoration: InputDecoration(labelText: 'Name'),
-//                     validator: (value) => value!.isEmpty ? 'Enter your name' : null,
-//                   ),
-//                   SizedBox(height: 10),
+//                   _buildTextField(_nameController, 'Name', Icons.person, false),
 
 //                   // Email
-//                   TextFormField(
-//                     controller: _emailController,
-//                     decoration: InputDecoration(labelText: 'Email', hoverColor: Colors.white),
-//                     keyboardType: TextInputType.emailAddress,
-//                     validator: (value) => !value!.contains('@') ? 'Enter a valid email' : null,
-//                   ),
-//                   SizedBox(height: 10),
+//                   _buildTextField(_emailController, 'Email', Icons.email, false),
 
 //                   // Age
-//                   TextFormField(
-//                     controller: _ageController,
-//                     decoration: InputDecoration(labelText: 'Age'),
-//                     keyboardType: TextInputType.number,
-//                     validator: (value) => int.tryParse(value!) == null ? 'Enter a valid age' : null,
-//                     style: TextStyle(color: Colors.white),
-//                   ),
-//                   SizedBox(height: 10),
+//                   _buildTextField(_ageController, 'Age', Icons.calendar_today, false, isNumber: true),
 
 //                   // Password
-//                   TextFormField(
-//                     controller: _passwordController,
-//                     decoration: InputDecoration(labelText: 'Password'),
-//                     obscureText: true,
-//                     validator: (value) => value!.length < 6 ? 'Password must be 6+ chars' : null,
-//                   ),
-//                   SizedBox(height: 10),
+//                   _buildTextField(_passwordController, 'Password', Icons.lock, true, isPassword: true),
 
 //                   // Confirm Password
-//                   TextFormField(
-//                     controller: _confirmPasswordController,
-//                     decoration: InputDecoration(labelText: 'Confirm Password'),
-//                     obscureText: true,
-//                     validator: (value) => value != _passwordController.text ? 'Passwords do not match' : null,
-//                   ),
+//                   _buildTextField(_confirmPasswordController, 'Confirm Password', Icons.lock, true, isPassword: true),
+
 //                   SizedBox(height: 20),
 
 //                   // Register Button
@@ -223,12 +185,51 @@
 //                       ? CircularProgressIndicator()
 //                       : ElevatedButton(
 //                           onPressed: _registerUser,
-//                           child: Text('Register'),
+//                           style: ElevatedButton.styleFrom(
+//                             backgroundColor: Colors.white,
+//                             padding: EdgeInsets.symmetric(horizontal: 50, vertical: 12),
+//                             shape: RoundedRectangleBorder(
+//                               borderRadius: BorderRadius.circular(20),
+//                             ),
+//                           ),
+//                           child: Text(
+//                             'Register',
+//                             style: TextStyle(color: Colors.deepPurple, fontSize: 16, fontWeight: FontWeight.bold),
+//                           ),
 //                         ),
 //                 ],
 //               ),
 //             ),
 //           ),
+//         ),
+//       ),
+//     );
+//   }
+
+//   /// **Reusable TextField Widget**
+//   Widget _buildTextField(TextEditingController controller, String label, IconData icon, bool obscureText,
+//       {bool isPassword = false, bool isNumber = false}) {
+//     return Padding(
+//       padding: EdgeInsets.only(bottom: 15),
+//       child: TextFormField(
+//         controller: controller,
+//         obscureText: isPassword ? (!_isPasswordVisible) : obscureText,
+//         keyboardType: isNumber ? TextInputType.number : TextInputType.text,
+//         validator: (value) => value!.isEmpty ? 'Enter your $label' : null,
+//         decoration: InputDecoration(
+//           labelText: label,
+//           prefixIcon: Icon(icon, color: Colors.white),
+//           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+//           suffixIcon: isPassword
+//               ? IconButton(
+//                   icon: Icon(_isPasswordVisible ? Icons.visibility : Icons.visibility_off),
+//                   onPressed: () {
+//                     setState(() {
+//                       _isPasswordVisible = !_isPasswordVisible;
+//                     });
+//                   },
+//                 )
+//               : null,
 //         ),
 //       ),
 //     );
@@ -244,6 +245,13 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:typed_data';
 
+// 🎨 Professional Color Palette
+const kPrimaryColor = Color(0xFF4B0082);       // Indigo
+const kAccentColor = Color(0xFF6A5ACD);        // Slate Blue
+const kBackgroundColor = Color(0xFFF9F9FC);    // Soft white
+const kTextPrimary = Color(0xFF1F1F1F);         // Dark grey/black
+const kTextSecondary = Color(0xFF6C6C6C);       // Muted grey
+
 class RegistrationUser extends StatefulWidget {
   const RegistrationUser({super.key});
 
@@ -258,6 +266,15 @@ class _RegisterScreenState extends State<RegistrationUser> {
   final TextEditingController _ageController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
+
+  // New Fields
+  final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _dobController = TextEditingController();
+  final TextEditingController _bioController = TextEditingController();
+  final TextEditingController _skillsController = TextEditingController();
+  final TextEditingController _languagesController = TextEditingController();
+  final TextEditingController _qualificationController = TextEditingController();
+
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
@@ -265,31 +282,22 @@ class _RegisterScreenState extends State<RegistrationUser> {
   Uint8List? _webImage;
   bool _isUploading = false;
   bool _isPasswordVisible = false;
-  bool _isConfirmPasswordVisible = false;
   String? _imageUrl;
 
-  /// **Pick Image (Supports Web & Mobile)**
   Future<void> _pickImage() async {
     final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
-
     if (pickedFile != null) {
       if (kIsWeb) {
         final bytes = await pickedFile.readAsBytes();
-        setState(() {
-          _webImage = bytes;
-        });
+        setState(() => _webImage = bytes);
       } else {
-        setState(() {
-          _image = File(pickedFile.path);
-        });
+        setState(() => _image = File(pickedFile.path));
       }
     }
   }
 
-  /// **Upload Image to Cloudinary**
   Future<String?> _uploadImageToCloudinary(File imageFile) async {
     setState(() => _isUploading = true);
-
     try {
       const cloudinaryUrl = "https://api.cloudinary.com/v1_1/dvijd3hxi/image/upload";
       const uploadPreset = "profile_images";
@@ -311,21 +319,16 @@ class _RegisterScreenState extends State<RegistrationUser> {
     }
   }
 
-  /// **Register User**
   void _registerUser() async {
     if (!_formKey.currentState!.validate()) return;
 
     if (_passwordController.text.trim() != _confirmPasswordController.text.trim()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Passwords do not match!')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Passwords do not match!')));
       return;
     }
 
     if (_image == null && _webImage == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please select a profile image!')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please select a profile image!')));
       return;
     }
 
@@ -349,28 +352,29 @@ class _RegisterScreenState extends State<RegistrationUser> {
           'uid': user.uid,
           'profileImageUrl': imageUrl ?? '',
           'role': 'user',
+          'address': _addressController.text.trim(),
+          'dob': _dobController.text.trim(),
+          'bio': _bioController.text.trim(),
+          'skills': _skillsController.text.trim(),
+          'languages': _languagesController.text.trim(),
+          'qualification': _qualificationController.text.trim(),
         });
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Registration Successful!')),
-        );
-
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Registration Successful!')));
         Navigator.pushReplacementNamed(context, '/login');
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: kBackgroundColor,
       appBar: AppBar(
         title: Text('User Registration', style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.white,
+        backgroundColor: kPrimaryColor,
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
@@ -380,12 +384,11 @@ class _RegisterScreenState extends State<RegistrationUser> {
               key: _formKey,
               child: Column(
                 children: [
-                  // Profile Image Picker
                   GestureDetector(
                     onTap: _pickImage,
                     child: CircleAvatar(
                       radius: 50,
-                      backgroundColor: Colors.black,
+                      backgroundColor: kPrimaryColor,
                       backgroundImage: _webImage != null
                           ? MemoryImage(_webImage!)
                           : _image != null
@@ -397,39 +400,30 @@ class _RegisterScreenState extends State<RegistrationUser> {
                     ),
                   ),
                   SizedBox(height: 20),
-
-                  // Name
                   _buildTextField(_nameController, 'Name', Icons.person, false),
-
-                  // Email
                   _buildTextField(_emailController, 'Email', Icons.email, false),
-
-                  // Age
                   _buildTextField(_ageController, 'Age', Icons.calendar_today, false, isNumber: true),
-
-                  // Password
+                  _buildTextField(_addressController, 'Address', Icons.location_on, false),
+                  _buildTextField(_dobController, 'Date of Birth (YYYY-MM-DD)', Icons.cake, false),
+                  _buildTextField(_bioController, 'Bio', Icons.info_outline, false),
+                  _buildTextField(_skillsController, 'Skills (comma-separated)', Icons.build, false),
+                  _buildTextField(_languagesController, 'Languages Known', Icons.language, false),
+                  _buildTextField(_qualificationController, 'Qualification', Icons.school, false),
                   _buildTextField(_passwordController, 'Password', Icons.lock, true, isPassword: true),
-
-                  // Confirm Password
                   _buildTextField(_confirmPasswordController, 'Confirm Password', Icons.lock, true, isPassword: true),
-
                   SizedBox(height: 20),
-
-                  // Register Button
                   _isUploading
                       ? CircularProgressIndicator()
                       : ElevatedButton(
                           onPressed: _registerUser,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
+                            backgroundColor: kPrimaryColor,
                             padding: EdgeInsets.symmetric(horizontal: 50, vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                           ),
                           child: Text(
                             'Register',
-                            style: TextStyle(color: Colors.deepPurple, fontSize: 16, fontWeight: FontWeight.bold),
+                            style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                           ),
                         ),
                 ],
@@ -441,28 +435,32 @@ class _RegisterScreenState extends State<RegistrationUser> {
     );
   }
 
-  /// **Reusable TextField Widget**
-  Widget _buildTextField(TextEditingController controller, String label, IconData icon, bool obscureText,
-      {bool isPassword = false, bool isNumber = false}) {
+  Widget _buildTextField(
+    TextEditingController controller,
+    String label,
+    IconData icon,
+    bool obscureText, {
+    bool isPassword = false,
+    bool isNumber = false,
+  }) {
     return Padding(
       padding: EdgeInsets.only(bottom: 15),
       child: TextFormField(
         controller: controller,
-        obscureText: isPassword ? (!_isPasswordVisible) : obscureText,
+        obscureText: isPassword ? !_isPasswordVisible : obscureText,
         keyboardType: isNumber ? TextInputType.number : TextInputType.text,
         validator: (value) => value!.isEmpty ? 'Enter your $label' : null,
+        style: TextStyle(color: kTextPrimary),
         decoration: InputDecoration(
           labelText: label,
-          prefixIcon: Icon(icon, color: Colors.white),
+          labelStyle: TextStyle(color: kTextSecondary),
+          prefixIcon: Icon(icon, color: kPrimaryColor),
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+          focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: kPrimaryColor)),
           suffixIcon: isPassword
               ? IconButton(
-                  icon: Icon(_isPasswordVisible ? Icons.visibility : Icons.visibility_off),
-                  onPressed: () {
-                    setState(() {
-                      _isPasswordVisible = !_isPasswordVisible;
-                    });
-                  },
+                  icon: Icon(_isPasswordVisible ? Icons.visibility : Icons.visibility_off, color: kPrimaryColor),
+                  onPressed: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
                 )
               : null,
         ),
@@ -470,4 +468,3 @@ class _RegisterScreenState extends State<RegistrationUser> {
     );
   }
 }
- 

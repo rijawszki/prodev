@@ -1,99 +1,3 @@
-
-// import 'package:flashy_tab_bar2/flashy_tab_bar2.dart';
-// import 'package:flutter/material.dart';
-// import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'userProfile.dart';
-
-
-// class UserHomepage extends StatefulWidget {
-//   const UserHomepage({super.key});
-
-//   @override
-//   _UserHomepageState createState() => _UserHomepageState();
-// }
-
-// class _UserHomepageState extends State<UserHomepage> {
-//   int _selectedIndex = 0; // Default to Home tab
-//   String? userName;
-//   String? userEmail;
-//   String? userAge;
-//   String? userRole;
-//   String? profileImageUrl;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     _fetchUserData();
-//   }
-
-//   /// **Fetch User Data from Firestore**
-//   Future<void> _fetchUserData() async {
-//     User? user = FirebaseAuth.instance.currentUser;
-//     if (user != null) {
-//       DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
-//       if (userDoc.exists) {
-//         setState(() {
-//           userName = userDoc['name'] ?? 'No Name';
-//           userEmail = userDoc['email'];
-//           userAge = userDoc['age'].toString();
-//           userRole = userDoc['role'] ?? 'User';
-//           profileImageUrl = userDoc['profileImageUrl'] ?? "";
-//         });
-//       }
-//     }
-//   }
-
-//   Future<void> _logout() async {
-//     await FirebaseAuth.instance.signOut();
-//     Navigator.pushReplacementNamed(context, '/login');
-//   }
-
-//   void _goToProfile() {
-//     Navigator.pushNamed(context, '/UserProfile');
-//   }
-
-//   List<Widget> _tabItems() => [
-//         Center(child: Text("home", style: TextStyle(color: Colors.white))),
-//         Center(child: Text("IELTS", style: TextStyle(color: Colors.white))),
-//         Center(child: Text("Jobs", style: TextStyle(color: Colors.white))),
-//         Center(child: Text("Games", style: TextStyle(color: Colors.white))),
-//         Center(child: Text("Notifications", style: TextStyle(color: Colors.white)))
-//       ];
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       backgroundColor: Colors.white,
-//       appBar: AppBar(
-//         title: Text("Welcome, ${userName ?? 'User'}", style: TextStyle(color: Colors.white)),
-//         backgroundColor: Colors.deepPurple,
-//         actions: [
-//           IconButton(icon: Icon(Icons.account_circle, color: Colors.white), onPressed: _goToProfile),
-//           IconButton(icon: Icon(Icons.logout, color: Colors.white), onPressed: _logout),
-//         ],
-//       ),
-//       body: _tabItems()[_selectedIndex],
-//       bottomNavigationBar: FlashyTabBar(
-//         animationCurve: Curves.linear,
-//         selectedIndex: _selectedIndex,
-//         iconSize: 30,
-//         showElevation: false,
-//         onItemSelected: (index) => setState(() {
-//           _selectedIndex = index;
-//         }),
-//         items: [
-//           FlashyTabBarItem(icon: Icon(Icons.home), title: Text('home')),
-//           FlashyTabBarItem(icon: Icon(Icons.school), title: Text('IELTS')),
-//           FlashyTabBarItem(icon: Icon(Icons.work), title: Text('Jobs')),
-//           FlashyTabBarItem(icon: Icon(Icons.videogame_asset), title: Text('Games')),
-//           FlashyTabBarItem(icon: Icon(Icons.notifications), title: Text('Notifications')),
-//         ],
-//       ),
-//     );
-//   }
-// }
-     
 import 'package:flashy_tab_bar2/flashy_tab_bar2.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -114,7 +18,7 @@ class UserHomepage extends StatefulWidget {
 }
 
 class _UserHomepageState extends State<UserHomepage> {
-  int _selectedIndex = 0; // Default to Home tab
+  int _selectedIndex = 0;
 
   String? userName;
   String? profileImageUrl;
@@ -125,11 +29,11 @@ class _UserHomepageState extends State<UserHomepage> {
     _fetchUserData();
   }
 
-  /// **Fetch User Data from Firestore**
   Future<void> _fetchUserData() async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+      DocumentSnapshot userDoc =
+          await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
       if (userDoc.exists) {
         setState(() {
           userName = userDoc['name'] ?? 'User';
@@ -148,7 +52,6 @@ class _UserHomepageState extends State<UserHomepage> {
     Navigator.pushNamed(context, '/UserProfile');
   }
 
-  /// **Screens for the Bottom Navigation Bar**
   final List<Widget> _screens = [
     HomeScreen(),
     IeltsPage(),
@@ -157,26 +60,70 @@ class _UserHomepageState extends State<UserHomepage> {
     JobSearchScreen(),
   ];
 
+  // Define a list of pages where you want to show the floating button
+  final List<int> _pagesWithChatbot = [0, 1]; // Show on Home, Chat, and Job Search
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+
+      /// Drawer added here
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            UserAccountsDrawerHeader(
+              accountName: Text(userName ?? 'User'),
+              accountEmail: null,
+              currentAccountPicture: CircleAvatar(
+                backgroundImage: profileImageUrl != null && profileImageUrl!.isNotEmpty
+                    ? NetworkImage(profileImageUrl!)
+                    : null,
+                child: profileImageUrl == null || profileImageUrl!.isEmpty
+                    ? Icon(Icons.person, size: 40)
+                    : null,
+              ),
+              decoration: BoxDecoration(color: Colors.deepPurple),
+            ),
+            ListTile(
+              leading: Icon(Icons.person),
+              title: Text('Profile'),
+              onTap: () {
+                Navigator.pop(context);
+                _goToProfile();
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.logout),
+              title: Text('Logout'),
+              onTap: () {
+                Navigator.pop(context);
+                _logout();
+              },
+            ),
+          ],
+        ),
+      ),
+
       appBar: AppBar(
         title: Text("Welcome, ${userName ?? 'User'}", style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.deepPurple,
-        actions: [
-          IconButton(icon: Icon(Icons.account_circle, color: Colors.white), onPressed: _goToProfile),
-          IconButton(icon: Icon(Icons.logout, color: Colors.white), onPressed: _logout),
-        ],
+
+        /// Move profile icon to the left
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: Icon(Icons.account_circle, color: Colors.white),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
+        ),
       ),
 
-      /// **Using `IndexedStack` to keep state when switching tabs**
       body: IndexedStack(
         index: _selectedIndex,
         children: _screens,
       ),
 
-      /// **Bottom Navigation Bar**
       bottomNavigationBar: FlashyTabBar(
         animationCurve: Curves.linear,
         selectedIndex: _selectedIndex,
@@ -189,11 +136,34 @@ class _UserHomepageState extends State<UserHomepage> {
           FlashyTabBarItem(icon: Icon(Icons.home), title: Text('Home')),
           FlashyTabBarItem(icon: Icon(Icons.school), title: Text('IELTS')),
           FlashyTabBarItem(icon: Icon(Icons.work), title: Text('Jobs')),
-          FlashyTabBarItem(icon: Icon(Icons.chat_bubble_outline_outlined
-          ), title: Text('chat')),
+          FlashyTabBarItem(icon: Icon(Icons.chat_bubble_outline_outlined), title: Text('chat')),
           FlashyTabBarItem(icon: Icon(Icons.search_rounded), title: Text('job search')),
         ],
       ),
+
+      floatingActionButton: _pagesWithChatbot.contains(_selectedIndex) // Check if the current page is in the list
+          ? AnimatedPositioned(
+              duration: Duration(seconds: 1),
+              left: _selectedIndex % 2 == 0 ? 20.0 : 100.0, // Modify position logic for dynamic movement
+              bottom: 100.0,
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white, backgroundColor: Colors.deepPurple, // Text color
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  elevation: 8.0,
+                ),
+                onPressed: () {
+                  // Action for the button
+                  print('Chatbot pressed');
+                },
+                icon: Icon(Icons.chat_bubble_outline, size: 24),
+                label: Text("Chatbot", style: TextStyle(fontSize: 16)),
+              ),
+            )
+          : SizedBox.shrink(),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }

@@ -19,11 +19,7 @@ class UserChatListScreen extends StatelessWidget {
 
     final userId = currentUser.uid;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Chats"),
-        backgroundColor: Colors.deepPurple,
-      ),
+    return Scaffold( 
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('chats')
@@ -48,7 +44,8 @@ class UserChatListScreen extends StatelessWidget {
               final lastMessage = chatData['lastMessage'] ?? "";
               final companyId = chatData['companyId'];
               final unreadBy = chatData['unreadBy'] ?? [];
-
+ 
+ 
               final hasUnread = unreadBy.contains(userId);
 
               return ListTile(
