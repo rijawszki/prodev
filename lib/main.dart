@@ -144,6 +144,7 @@ import 'package:prodev/authority/company_registration.dart';
 import 'package:prodev/authority/companyprofile.dart';
 import 'package:prodev/logoscreen.dart';
 import 'package:prodev/splashscreen.dart';
+import 'package:prodev/user/chatbot.dart';
 import 'package:prodev/user/companychat.dart';
 import 'package:prodev/user/ielts.dart';
 import 'package:prodev/user/ielts_listening.dart';
@@ -206,6 +207,7 @@ class MyApp extends StatelessWidget {
         '/adminContent': (context) => AdminContentPage(),
         '/CompanyJobsPage':(context)=>CompanyJobsPage(), 
         '/CandidatesPage':(context)=>CandidatesPage(),
+        '/aichatbot':(context)=>userchatbot(),
   
         
        

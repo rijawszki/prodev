@@ -141,29 +141,8 @@ class _UserHomepageState extends State<UserHomepage> {
         ],
       ),
 
-      floatingActionButton: _pagesWithChatbot.contains(_selectedIndex) // Check if the current page is in the list
-          ? AnimatedPositioned(
-              duration: Duration(seconds: 1),
-              left: _selectedIndex % 2 == 0 ? 20.0 : 100.0, // Modify position logic for dynamic movement
-              bottom: 100.0,
-              child: ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white, backgroundColor: Colors.deepPurple, // Text color
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  elevation: 8.0,
-                ),
-                onPressed: () {
-                  // Action for the button
-                  print('Chatbot pressed');
-                },
-                icon: Icon(Icons.chat_bubble_outline, size: 24),
-                label: Text("Chatbot", style: TextStyle(fontSize: 16)),
-              ),
-            )
-          : SizedBox.shrink(),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: FloatingActionButton(onPressed: (){Navigator.pushNamed(context, '/aichatbot');},child: Icon(Icons.messenger),)
     );
   }
 }
+ 
